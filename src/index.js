@@ -8,12 +8,13 @@ app.use(express.json());
 const projects = [];
 
 app.get("/projects", (request, response) => {
-  /*const { title, owner } = request.query;
+  const { title } = request.query;
 
-  console.log(title);
-  console.log(owner);
-  console.log(request.query);
-*/
+  // estrutura condicional ternária
+  const results = title
+    ? projects.filter((project) => project.title.includes(title))
+    : projects;
+
   return response.json(projects);
 });
 
@@ -49,7 +50,7 @@ app.put("/projects/:id", (request, response) => {
 });
 
 app.delete("/projects/:id", (request, response) => {
-  /*const { id } = request.params;
+  const { id } = request.params;
   const { title, owner } = request.body;
 
   const projectIndex = projects.findIndex((project) => project.id === id);
@@ -57,13 +58,15 @@ app.delete("/projects/:id", (request, response) => {
   if (projectIndex < 0) {
     return response.status(400).json({ error: "Project not found." });
   }
-  projects.slice(projectIndex, 1);
+  projects.splice(projectIndex, 1);
 
-  response.json({
+  return response.status(204).send();
+
+  /* response.json({
     message: `projeto ${id} deletado`,
   });*/
 
-  const projectid = request.params.id;
+  /* const projectid = request.params.id;
 
   let project = projects.filter((project) => {
     return project.id == projectid;
@@ -75,7 +78,7 @@ app.delete("/projects/:id", (request, response) => {
 
   response.json({
     message: `Projeto ${projectid} deletado`,
-  });
+  });*/
 });
 
 const port = 3333;
