@@ -1,11 +1,45 @@
 const express = require("express");
-const { uuid } = require("uuidv4");
+const { uuid, isUuid } = require("uuidv4");
 
 const app = express();
 
 app.use(express.json());
 
+/**
+ * Middleware
+ * Interceptador de requisições que pode interromper totalmente a requisição ou
+ * alterar dados da requisição
+ */
+
 const projects = [];
+/**
+ * o uso do middleware = qdo quiser que um trecho de codigo seja disparado de forma automática
+ * em uma ou mais rotas da nossa aplicação
+ */
+function logRequest(request, response, next) {
+  const { method, url } = response;
+
+  const logLabel = `[${method.toUpperCase()}] ${url}`;
+
+  console.time(logLabel);
+  next(); // proximo middleware
+
+  console.timeEnd(logLabel);
+}
+
+function validateProjectId(request, response, next) {
+  const { id } = request.params;
+
+  if (!isUuid(id)) {
+    return response
+      .status(400)
+      .json({ error: `Param sent isn't a valida UUID` });
+  }
+  next();
+}
+
+app.use(logRequest);
+//app.use("/projects/:id", validateProjectId);
 
 app.get("/projects", (request, response) => {
   const { title } = request.query;
@@ -28,7 +62,7 @@ app.post("/projects", (request, response) => {
   return response.json(project);
 });
 
-app.put("/projects/:id", (request, response) => {
+app.put("/projects/:id", validateProjectId, (request, response) => {
   const { id } = request.params;
   const { title, owner } = request.body;
 
@@ -49,7 +83,7 @@ app.put("/projects/:id", (request, response) => {
   return response.json(project);
 });
 
-app.delete("/projects/:id", (request, response) => {
+app.delete("/projects/:id", validateProjectId, (request, response) => {
   const { id } = request.params;
   const { title, owner } = request.body;
 
@@ -81,7 +115,7 @@ app.delete("/projects/:id", (request, response) => {
   });*/
 });
 
-const port = 3333;
-app.listen(3333, () => {
+const port = 3335;
+app.listen(3335, () => {
   console.log(`Server up and running on PORT ${port}`);
 });
